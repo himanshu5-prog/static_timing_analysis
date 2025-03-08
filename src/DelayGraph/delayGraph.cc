@@ -40,23 +40,39 @@ DelayGraph :: createSimpleCircuit(){
     addNodeList(source, {gatePtr[0], gatePtr[1]});
     incomingEdges[gatePtr[0]] += 1;
     incomingEdges[gatePtr[1]] += 1;
+    successor[source] = {gatePtr[0], gatePtr[1]};
+    predecessor[gatePtr[0]].push_back(source);
+    predecessor[gatePtr[1]].push_back(source);
+
 
     addNodeList(gatePtr[0], {gatePtr[2], gatePtr[3]});
     incomingEdges[gatePtr[2]] += 1;
     incomingEdges[gatePtr[3]] += 1;
+    successor[gatePtr[0]] = {gatePtr[2], gatePtr[3]};
+    predecessor[gatePtr[2]].push_back(gatePtr[0]);
+    predecessor[gatePtr[3]].push_back(gatePtr[0]);
 
     addNodeList(gatePtr[1], {gatePtr[3], gatePtr[4]});
     incomingEdges[gatePtr[3]] += 1;
     incomingEdges[gatePtr[4]] += 1;
+    successor[gatePtr[1]] = {gatePtr[3], gatePtr[4]};
+    predecessor[gatePtr[3]].push_back(gatePtr[1]);
+    predecessor[gatePtr[4]].push_back(gatePtr[1]);
 
     addNodeList(gatePtr[2], {gatePtr[4]});
     incomingEdges[gatePtr[4]] += 1;
+    successor[gatePtr[2]] = {gatePtr[4]};
+    predecessor[gatePtr[4]].push_back(gatePtr[2]);  
 
     addNodeList(gatePtr[3], {gatePtr[4]});
     incomingEdges[gatePtr[4]] += 1;
+    successor[gatePtr[3]] = {gatePtr[4]};
+    predecessor[gatePtr[4]].push_back(gatePtr[3]);
 
     addNodeList(gatePtr[4], {sink});
     incomingEdges[sink] += 1;
+    successor[gatePtr[4]] = {sink};
+    predecessor[sink].push_back(gatePtr[4]);
 
     //Setting the delay
 
@@ -108,5 +124,74 @@ DelayGraph :: printIncomingEdges(){
     std::cout << "Printing Incoming Edges" << std::endl;
     for(auto it = incomingEdges.begin(); it != incomingEdges.end(); it++){
         std::cout << "Node: " << it->first->getId() << " ,Incoming Edges: " << it->second << std::endl;
+    }
+}
+
+void
+DelayGraph :: performTopologicalSort(){
+    std :: queue <NodePtr> q;
+
+    NodePtr source;
+
+    for (auto it = incomingEdges.begin(); it != incomingEdges.end(); it++){
+        if(it->second == 0){
+            q.push(it->first);
+        }
+    }
+    NodePtr currentNodePtr;
+    while( q.size() > 0){
+        currentNodePtr = q.front();
+        q.pop();
+        topologicalOrder.push_back(currentNodePtr);
+        for(auto node : circuit[currentNodePtr]){
+            incomingEdges[node] -= 1;
+            if(incomingEdges[node] == 0){
+                q.push(node);
+            }
+        }
+    }
+}
+
+void DelayGraph :: printTopologicalOrder(){
+    std::cout << "Printing Topological Order" << std::endl;
+    for(auto node : topologicalOrder){
+        std::cout << node->getId() << " ";
+    }
+    std::cout << std::endl;
+}
+
+void DelayGraph :: run(){
+    createSimpleCircuit();
+    printIncomingEdges();
+    performTopologicalSort();
+}
+
+void DelayGraph :: print(){
+    printCircuit();
+    printDelay();
+    printSuccessor();
+    printPredecessor();
+    printTopologicalOrder();
+}
+
+void DelayGraph :: printSuccessor(){
+    std::cout << "Printing Successor" << std::endl;
+    for(auto it = successor.begin(); it != successor.end(); it++){
+        std::cout << "Node: " << it->first->getId() << " Successor: ";
+        for(auto node : it->second){
+            std::cout << node->getId() << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void DelayGraph :: printPredecessor(){
+    std::cout << "Printing Predecessor" << std::endl;
+    for(auto it = predecessor.begin(); it != predecessor.end(); it++){
+        std::cout << "Node: " << it->first->getId() << " Predecessor: ";
+        for(auto node : it->second){
+            std::cout << node->getId() << " ";
+        }
+        std::cout << std::endl;
     }
 }

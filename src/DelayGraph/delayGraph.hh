@@ -11,6 +11,8 @@ class DelayGraph{
     Delay delay; // Delay object
     std :: map <NodePtr, int> incomingEdges;
     std :: vector <NodePtr> topologicalOrder;
+    std :: map <NodePtr, NodeList> successor;
+    std :: map <NodePtr, NodeList> predecessor;
     
 
     public:
@@ -48,13 +50,18 @@ class DelayGraph{
             delay.insert ({std::make_pair(sourceId,destId), delayValue});
         }
 
+        void performTopologicalSort();
         // Print
         void printCircuit();
         void printDelay();
         void printIncomingEdges();
+        void print();
+        void printTopologicalOrder();
+        void printSuccessor();
+        void printPredecessor();
         //--------------------------------------------------------------------------------
 
-
+        void run();
         //Create Circuit
         void createCircuit();
         void createSimpleCircuit();
