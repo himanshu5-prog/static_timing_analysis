@@ -3,9 +3,7 @@
 
 int main(){
     DelayGraph dg;
-    dg.createSimpleCircuit();
-    dg.printCircuit();
-    dg.printDelay();
-    dg.printIncomingEdges();
+    dg.run();
+    dg.print();
     return 0;
 }
