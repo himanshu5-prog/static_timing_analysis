@@ -1,8 +1,12 @@
+#ifndef __DELAY_GRAPH_HH__
+#define __DELAY_GRAPH_HH__
 #include <iostream>
 #include <vector>
 #include <map>
 #include <set>
 #include <array>
+#include <utility>
+#include <algorithm>
 #include "../DataType/data_types.hh"
 
 class DelayGraph{
@@ -13,17 +17,22 @@ class DelayGraph{
     std :: vector <NodePtr> topologicalOrder;
     std :: map <NodePtr, NodeList> successor;
     std :: map <NodePtr, NodeList> predecessor;
-    
+    NodePtr m_sourceNodePtr;
+    NodePtr m_sinkNodePtr;
+    int m_cycleTime;
+    bool m_debugMode;
 
     public:
         // Constructors
-        DelayGraph(int gateCount_) : gateCount(gateCount_) {
+        DelayGraph(int gateCount_, int cycleTime_, int debugMode_) : gateCount(gateCount_), m_cycleTime(cycleTime_), m_debugMode(debugMode_){
             circuit.clear();
         }
 
         DelayGraph (){
             gateCount = 0;
             circuit.clear();
+            m_cycleTime = 20;
+            m_debugMode = false;
         }
         //--------------------------------------------------------------------------------
 
@@ -34,6 +43,8 @@ class DelayGraph{
         // Setters
         void setGateCount(int gateCount_) { gateCount = gateCount_; }
         void setCircuit(std::map<NodePtr,NodeList> circuit_) { circuit = circuit_; }
+        void setCycleTime(int cycleTime_) { m_cycleTime = cycleTime_; }
+        void setDebugMode(int debugMode_) { m_debugMode = debugMode_; }
 
         // Add node list
         void addNodeList(NodePtr node, NodeList nodes){
@@ -51,6 +62,9 @@ class DelayGraph{
         }
 
         void performTopologicalSort();
+        void updateArrivalTime();
+        void updateRequiredTime();
+        void updateSlack();
         // Print
         void printCircuit();
         void printDelay();
@@ -59,10 +73,12 @@ class DelayGraph{
         void printTopologicalOrder();
         void printSuccessor();
         void printPredecessor();
+        void printTimingInformation();
         //--------------------------------------------------------------------------------
-
         void run();
         //Create Circuit
         void createCircuit();
         void createSimpleCircuit();
 };
+
+#endif

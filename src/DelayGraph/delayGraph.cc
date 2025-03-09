@@ -24,10 +24,12 @@ DelayGraph :: createSimpleCircuit(){
     // Creating source node
     NodePtr source = new Node(100, SOURCE, 0, 0);
     incomingEdges[source] = 0;
+    m_sourceNodePtr = source;
 
     // Creating sink node
     NodePtr sink = new Node(101, SINK, 0, 0);
     incomingEdges[sink] = 0;
+    m_sinkNodePtr = sink;
 
     NodePtr* gatePtr = new NodePtr[5];
 
@@ -152,6 +154,55 @@ DelayGraph :: performTopologicalSort(){
     }
 }
 
+void
+DelayGraph :: updateArrivalTime(){
+    printDebugStatement(m_debugMode, "Updating Arrival Time");
+    for (auto node : topologicalOrder){
+        if (node->getType() == SOURCE){
+            node->setArrivalTime(0);
+            printDebugStatement(m_debugMode, "Source Node Arrival Time: " + std::to_string(node->getArrivalTime()));
+        } else {
+            // node is not source
+            int arrTime = INT_MIN;
+            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()));
+            for (auto pred: predecessor[node]){
+                arrTime = std :: max(arrTime, pred->getArrivalTime() + delay[std::make_pair(pred->getId(), node->getId())]);
+                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Predecessor id: " + std::to_string(pred->getId()) + ", setting ArrTime:" + std::to_string(arrTime));
+            }
+            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()) + ", Final Arrival Time: " + std::to_string(arrTime));
+            node->setArrivalTime(arrTime);
+        }
+    }
+}
+
+void
+DelayGraph :: updateRequiredTime(){
+    printDebugStatement(m_debugMode, "Updating Required Time");
+    for (auto itr = topologicalOrder.crbegin(); itr != topologicalOrder.crend(); ++itr){
+        NodePtr node = *itr;
+        if (node->getType() == SINK){
+            node->setRequiredTime(m_cycleTime);
+            printDebugStatement(m_debugMode, "Sink Node Required Time: " + std::to_string(node->getRequiredTime()));
+        } else {
+            int reqTime = INT_MAX;
+            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()));
+            for (auto succ: successor[node]){
+                reqTime = std :: min(reqTime, succ->getRequiredTime() - delay[std::make_pair(node->getId(), succ->getId())]);
+                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Successor id: " + std::to_string(succ->getId()) + ", setting ReqTime:" + std::to_string(reqTime));
+            }
+            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()) + ", Final Required Time: " + std::to_string(reqTime));
+            node->setRequiredTime(reqTime);
+        }
+    }
+}
+
+void
+DelayGraph :: updateSlack(){
+    for (const auto node: topologicalOrder){
+        node->setSlack(node->getRequiredTime() - node->getArrivalTime()); // Slack = Required Time - Arrival Time
+    }
+}
+
 void DelayGraph :: printTopologicalOrder(){
     std::cout << "Printing Topological Order" << std::endl;
     for(auto node : topologicalOrder){
@@ -164,6 +215,9 @@ void DelayGraph :: run(){
     createSimpleCircuit();
     printIncomingEdges();
     performTopologicalSort();
+    updateArrivalTime();
+    updateRequiredTime();
+    updateSlack();
 }
 
 void DelayGraph :: print(){
@@ -172,6 +226,7 @@ void DelayGraph :: print(){
     printSuccessor();
     printPredecessor();
     printTopologicalOrder();
+    printTimingInformation();
 }
 
 void DelayGraph :: printSuccessor(){
@@ -194,4 +249,16 @@ void DelayGraph :: printPredecessor(){
         }
         std::cout << std::endl;
     }
+}
+
+void DelayGraph :: printTimingInformation(){
+    std :: cout << "Printing Timing Information" << std::endl;
+    for (auto node: topologicalOrder){
+        std::cout << "Node: " << node->getId() << ", "<< nodeTypeToString(node->getType()) << std::endl;
+        std::cout << "Arrival Time: " << node->getArrivalTime() << std::endl;
+        std::cout << "Required Time: " << node->getRequiredTime() << std::endl;
+        std::cout << "Slack: " << node->getSlack() << std::endl;
+        std :: cout << "--------------------------------" << std::endl;
+    }
+    
 }
