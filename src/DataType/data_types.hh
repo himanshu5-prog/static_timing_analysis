@@ -5,6 +5,8 @@
 #include <map>
 #include <utility>
 #include <string>
+#include <queue>
+#include <cassert>
 
 enum NodeType {
     SOURCE,
@@ -66,22 +68,18 @@ typedef std::vector<NodePtr> NodeList;
 typedef std :: pair <int, int> GateArc;
 typedef std :: map <GateArc, int> Delay;
 
-inline std :: string nodeTypeToString(NodeType type){
-    switch(type){
-        case SOURCE:
-            return "SOURCE";
-        case SINK:
-            return "SINK";
-        case GATE:
-            return "GATE";
-        default:
-            return "UNKNOWN";
-    }
-}
+struct PathType {
+    std :: vector <NodePtr> path;
+    NodePtr endNode;
+    int delay;
+    int slack;
+};
+typedef std :: vector <PathType> PathList;
 
-inline void printDebugStatement(bool debugMode, std :: string statement){
-    if (debugMode){
-        std :: cout << statement << std :: endl;
+struct PathSlackComparator{
+    bool operator()(const PathType& lhs, const PathType& rhs){
+        return lhs.slack > rhs.slack;
     }
-}
+};
+
 #endif
