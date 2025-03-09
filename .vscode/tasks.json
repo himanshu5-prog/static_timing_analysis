@@ -2,15 +2,16 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: clang build active file",
+            "label": "build",
             "command": "g++",
             "args": [
                 "-g",
                 "-std=c++17",
-                "${workspaceFolder}/src/*.cpp",
-                "${workspaceFolder}/src/**/*.cpp",
+                "${workspaceFolder}/src/performSTA.cc",
+                "${workspaceFolder}/src/DataType/data_types.cc",
+                "${workspaceFolder}/src/DelayGraph/delayGraph.cc",
                 "-o",
-                "${fileDirname}/performSTA"
+                "${workspaceFolder}/performSTA"
             ],
             "options": {
                 "cwd": "${fileDirname}"
