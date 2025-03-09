@@ -1,7 +1,10 @@
+#ifndef __DATA_TYPES_HH__
+#define __DATA_TYPES_HH__
 #include <iostream>
 #include <vector>
 #include <map>
 #include <utility>
+#include <string>
 
 enum NodeType {
     SOURCE,
@@ -9,6 +12,8 @@ enum NodeType {
     GATE,
     NUM_NODE_TYPES
 };
+std :: string nodeTypeToString(NodeType type);
+void printDebugStatement(bool debugMode, std :: string statement);
 
 class Node {
     int id;
@@ -60,3 +65,23 @@ typedef Node* NodePtr;
 typedef std::vector<NodePtr> NodeList;
 typedef std :: pair <int, int> GateArc;
 typedef std :: map <GateArc, int> Delay;
+
+inline std :: string nodeTypeToString(NodeType type){
+    switch(type){
+        case SOURCE:
+            return "SOURCE";
+        case SINK:
+            return "SINK";
+        case GATE:
+            return "GATE";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+inline void printDebugStatement(bool debugMode, std :: string statement){
+    if (debugMode){
+        std :: cout << statement << std :: endl;
+    }
+}
+#endif
