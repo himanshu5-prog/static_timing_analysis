@@ -1,10 +1,10 @@
 Printing Incoming Edges
+Node: 100 ,Incoming Edges: 0
+Node: 101 ,Incoming Edges: 2
+Node: 0 ,Incoming Edges: 1
 Node: 1 ,Incoming Edges: 1
 Node: 2 ,Incoming Edges: 1
 Node: 3 ,Incoming Edges: 2
-Node: 101 ,Incoming Edges: 2
-Node: 0 ,Incoming Edges: 1
-Node: 100 ,Incoming Edges: 0
 Updating Arrival Time
 currentNode: SOURCE Node Arrival Time: 0
 Current Node id: 0
@@ -44,28 +44,20 @@ Node id: 100, Successor id: 0, successor reqTime: 3, edgeDelay: 3, setting ReqTi
 Node id: 100, Successor id: 1, successor reqTime: 5, edgeDelay: 4, setting ReqTime:0
 Node id: 100, Final Required Time: 0
 getPathList :: CurrentPath endnode: 0, delay lookup start node: 100, delay lookup end node: 0
-
 getPathList :: CurrentPath endnode: 1, delay lookup start node: 100, delay lookup end node: 1
-
 getPathList :: CurrentPath endnode: 2, delay lookup start node: 0, delay lookup end node: 2
-
 getPathList :: CurrentPath endnode: 3, delay lookup start node: 0, delay lookup end node: 3
-
 getPathList :: CurrentPath endnode: 101, delay lookup start node: 3, delay lookup end node: 101
-
 getPathList :: CurrentPath endnode: 3, delay lookup start node: 1, delay lookup end node: 3
-
 getPathList :: CurrentPath endnode: 101, delay lookup start node: 3, delay lookup end node: 101
-
 getPathList :: CurrentPath endnode: 101, delay lookup start node: 2, delay lookup end node: 101
-
 Printing Circuit:
+Node: 100 Fanout: 0 1 
+Node: 101 Fanout: 
+Node: 0 Fanout: 2 3 
 Node: 1 Fanout: 3 
 Node: 2 Fanout: 101 
 Node: 3 Fanout: 101 
-Node: 101 Fanout: 
-Node: 0 Fanout: 2 3 
-Node: 100 Fanout: 0 1 
 Printing Delay
 Source: 0 Destination: 2 Delay: 5
 Source: 0 Destination: 3 Delay: 11
@@ -75,17 +67,17 @@ Source: 3 Destination: 101 Delay: 15
 Source: 100 Destination: 0 Delay: 3
 Source: 100 Destination: 1 Delay: 4
 Printing Successor
+Node: 100 Successor: 0 1 
+Node: 0 Successor: 2 3 
 Node: 1 Successor: 3 
 Node: 2 Successor: 101 
 Node: 3 Successor: 101 
-Node: 0 Successor: 2 3 
-Node: 100 Successor: 0 1 
 Printing Predecessor
+Node: 101 Predecessor: 2 3 
+Node: 0 Predecessor: 100 
 Node: 1 Predecessor: 100 
 Node: 2 Predecessor: 0 
 Node: 3 Predecessor: 0 1 
-Node: 101 Predecessor: 2 3 
-Node: 0 Predecessor: 100 
 Printing Topological Order
 100 0 1 2 3 101 
 Printing Timing Information
