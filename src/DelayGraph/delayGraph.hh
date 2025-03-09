@@ -35,6 +35,11 @@ class DelayGraph{
             m_cycleTime = 20;
             m_debugMode = false;
         }
+        
+        ~DelayGraph(){
+            delete m_sourceNodePtr;
+            delete m_sinkNodePtr;
+        }
         //--------------------------------------------------------------------------------
 
         // Getters
