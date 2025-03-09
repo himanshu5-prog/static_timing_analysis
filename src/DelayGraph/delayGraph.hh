@@ -44,7 +44,7 @@ class DelayGraph{
         void setGateCount(int gateCount_) { gateCount = gateCount_; }
         void setCircuit(std::map<NodePtr,NodeList> circuit_) { circuit = circuit_; }
         void setCycleTime(int cycleTime_) { m_cycleTime = cycleTime_; }
-        void setDebugMode(int debugMode_) { m_debugMode = debugMode_; }
+        void setDebugMode() { m_debugMode = true; }
 
         // Add node list
         void addNodeList(NodePtr node, NodeList nodes){
