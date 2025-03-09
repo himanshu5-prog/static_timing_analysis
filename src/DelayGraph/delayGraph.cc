@@ -24,12 +24,12 @@ DelayGraph :: createSimpleCircuit(){
     // Creating source node
     NodePtr source = new Node(100, SOURCE, 0, 0);
     incomingEdges[source] = 0;
-    m_sourceNodePtr = source;
+    m_sourceNodePtr.reset(source);
 
     // Creating sink node
     NodePtr sink = new Node(101, SINK, 0, 0);
     incomingEdges[sink] = 0;
-    m_sinkNodePtr = sink;
+    m_sinkNodePtr.reset(sink);
 
     NodePtr* gatePtr = new NodePtr[5];
 
@@ -106,12 +106,12 @@ void DelayGraph :: createSimpleCircuit_2(){
     // Creating source node
     NodePtr source = new Node(100, SOURCE, 0, 0);
     incomingEdges[source] = 0;
-    m_sourceNodePtr = source;
+    m_sourceNodePtr.reset(source);
 
     // Creating sink node
     NodePtr sink = new Node(101, SINK, 0, 0);
     incomingEdges[sink] = 0;
-    m_sinkNodePtr = sink;
+    m_sinkNodePtr.reset(sink);
 
     NodePtr* gatePtr = new NodePtr[5];
 
@@ -279,8 +279,8 @@ DelayGraph :: updateSlack(){
 void DelayGraph :: getPathList(){
     PathType pathVar;
     assert (m_sourceNodePtr != nullptr);
-    pathVar.path.push_back(m_sourceNodePtr);
-    pathVar.endNode = m_sourceNodePtr;
+    pathVar.path.push_back(m_sourceNodePtr.get());
+    pathVar.endNode = m_sourceNodePtr.get();
     pathVar.delay = 0;
     pathVar.slack = m_sourceNodePtr->getSlack();
 
@@ -332,9 +332,9 @@ void DelayGraph :: printPathList(){
     for (auto path : m_finalPathList){
         std::cout << "Path: ";
         for (auto node : path.path){
-            if (node == m_sourceNodePtr){
+            if (node == m_sourceNodePtr.get()){
                 std :: cout << "SRC ";
-            } else if (node == m_sinkNodePtr){
+            } else if (node == m_sinkNodePtr.get()){
                 std :: cout << "SNK";
             } else {
                 std::cout << node->getId() << " ";

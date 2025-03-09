@@ -7,6 +7,7 @@
 #include <array>
 #include <utility>
 #include <algorithm>
+#include <memory>
 #include "../DataType/data_types.hh"
 
 class DelayGraph{
@@ -17,8 +18,8 @@ class DelayGraph{
     std :: vector <NodePtr> topologicalOrder;
     std :: map <NodePtr, NodeList> successor;
     std :: map <NodePtr, NodeList> predecessor;
-    NodePtr m_sourceNodePtr;
-    NodePtr m_sinkNodePtr;
+    std :: unique_ptr<Node> m_sourceNodePtr;
+    std :: unique_ptr<Node> m_sinkNodePtr;
     int m_cycleTime;
     bool m_debugMode;
     PathList m_finalPathList;
@@ -35,10 +36,8 @@ class DelayGraph{
             m_cycleTime = 20;
             m_debugMode = false;
         }
-        
+
         ~DelayGraph(){
-            delete m_sourceNodePtr;
-            delete m_sinkNodePtr;
         }
         //--------------------------------------------------------------------------------
 
