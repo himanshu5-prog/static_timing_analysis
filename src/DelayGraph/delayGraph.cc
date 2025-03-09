@@ -102,11 +102,70 @@ DelayGraph :: createSimpleCircuit(){
     setDelay(4,101,0);
 }
 
+void DelayGraph :: createSimpleCircuit_2(){
+    // Creating source node
+    NodePtr source = new Node(100, SOURCE, 0, 0);
+    incomingEdges[source] = 0;
+    m_sourceNodePtr = source;
+
+    // Creating sink node
+    NodePtr sink = new Node(101, SINK, 0, 0);
+    incomingEdges[sink] = 0;
+    m_sinkNodePtr = sink;
+
+    NodePtr* gatePtr = new NodePtr[5];
+
+    for (int i = 0; i < 4; i++){
+        gatePtr[i] = new Node(i, GATE, 0, 0);
+        incomingEdges[gatePtr[i]] = 0;
+    }
+
+    // Create the circuit
+
+    addNodeList(source, {gatePtr[0], gatePtr[1]});
+    incomingEdges[gatePtr[0]] += 1;
+    incomingEdges[gatePtr[1]] += 1;
+    successor[source] = {gatePtr[0], gatePtr[1]};
+    predecessor[gatePtr[0]].push_back(source);
+    predecessor[gatePtr[1]].push_back(source);
+
+    addNodeList(gatePtr[0], {gatePtr[2], gatePtr[3]});
+    incomingEdges[gatePtr[2]] += 1;
+    incomingEdges[gatePtr[3]] += 1;
+    successor[gatePtr[0]] = {gatePtr[2], gatePtr[3]};
+    predecessor[gatePtr[2]].push_back(gatePtr[0]);
+    predecessor[gatePtr[3]].push_back(gatePtr[0]);
+
+    addNodeList(gatePtr[1], {gatePtr[3]});
+    incomingEdges[gatePtr[3]] += 1;
+    successor[gatePtr[1]] = {gatePtr[3]};
+    predecessor[gatePtr[3]].push_back(gatePtr[1]);
+
+    addNodeList(gatePtr[2], {sink});
+    incomingEdges[sink] += 1;
+    successor[ gatePtr[2]].push_back(sink);
+    predecessor[sink].push_back(gatePtr[2]);
+
+    addNodeList(gatePtr[3], {sink});
+    incomingEdges[sink] += 1;
+    successor[gatePtr[3]].push_back(sink);
+    predecessor[sink].push_back(gatePtr[3]);
+
+    setDelay(100,0,3);
+    setDelay(100,1,4);
+    setDelay(0,2,5);
+    setDelay(0,3,11);
+    setDelay(1,3,9);
+    setDelay(2,101,6);
+    setDelay(3,101,15);
+
+}
+
 void DelayGraph :: printCircuit(){
     std::cout << "Printing Circuit:" << std::endl;
     for(auto it = circuit.begin(); it != circuit.end(); it++){
-        std::cout << "Node: " << it->first->getId() << std::endl;
-        std::cout << "Fanout: ";
+        std::cout << "Node: " << it->first->getId(); ;
+        std::cout << " Fanout: ";
         for(auto node : it->second){
             std::cout << node->getId() << " ";
         }
@@ -157,17 +216,21 @@ DelayGraph :: performTopologicalSort(){
 void
 DelayGraph :: updateArrivalTime(){
     printDebugStatement(m_debugMode, "Updating Arrival Time");
+
     for (auto node : topologicalOrder){
         if (node->getType() == SOURCE){
             node->setArrivalTime(0);
-            printDebugStatement(m_debugMode, "Source Node Arrival Time: " + std::to_string(node->getArrivalTime()));
+            printDebugStatement(m_debugMode, "currentNode: SOURCE Node Arrival Time: " + std::to_string(node->getArrivalTime()));
         } else {
             // node is not source
             int arrTime = INT_MIN;
-            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()));
+            int edgeDelay;
+            printDebugStatement(m_debugMode, "Current Node id: " + std::to_string(node->getId()));
             for (auto pred: predecessor[node]){
-                arrTime = std :: max(arrTime, pred->getArrivalTime() + delay[std::make_pair(pred->getId(), node->getId())]);
-                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Predecessor id: " + std::to_string(pred->getId()) + ", setting ArrTime:" + std::to_string(arrTime));
+                edgeDelay = delay[std::make_pair(pred->getId(), node->getId())];
+                arrTime = std :: max(arrTime, pred->getArrivalTime() + edgeDelay);
+                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Predecessor id: " + std::to_string(pred->getId()) 
+                + ", Pred arrivalTime: " + std :: to_string(pred->getArrivalTime())+ ", edge delay: " + std:: to_string(edgeDelay) + ", setting ArrTime:" + std::to_string(arrTime));
             }
             printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()) + ", Final Arrival Time: " + std::to_string(arrTime));
             node->setArrivalTime(arrTime);
@@ -180,15 +243,25 @@ DelayGraph :: updateRequiredTime(){
     printDebugStatement(m_debugMode, "Updating Required Time");
     for (auto itr = topologicalOrder.crbegin(); itr != topologicalOrder.crend(); ++itr){
         NodePtr node = *itr;
+        std :: string nodeIdStr = std::to_string(node->getId());
+        std :: string nodeReqTimesStr = std::to_string(node->getRequiredTime());
+
         if (node->getType() == SINK){
             node->setRequiredTime(m_cycleTime);
-            printDebugStatement(m_debugMode, "Sink Node Required Time: " + std::to_string(node->getRequiredTime()));
+            printDebugStatement(m_debugMode, "currentNode: SINK Node id: " + nodeIdStr + ", Required Time: " + nodeReqTimesStr);
         } else {
             int reqTime = INT_MAX;
-            printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()));
+            int edgeDelay;
+            int succReqTime;
+            std::string succId;
+            printDebugStatement(m_debugMode, "Current Node id: " + std::to_string(node->getId()));
             for (auto succ: successor[node]){
-                reqTime = std :: min(reqTime, succ->getRequiredTime() - delay[std::make_pair(node->getId(), succ->getId())]);
-                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Successor id: " + std::to_string(succ->getId()) + ", setting ReqTime:" + std::to_string(reqTime));
+                edgeDelay = delay[std::make_pair(node->getId(), succ->getId())];
+                succReqTime = succ->getRequiredTime();
+                succId = std::to_string(succ->getId());
+                reqTime = std :: min(reqTime, succReqTime - edgeDelay);
+                printDebugStatement(m_debugMode, "Node id: " + std :: to_string(node->getId()) + ", Successor id: " + std::to_string(succ->getId()) + 
+                ", successor reqTime: " + std::to_string(succReqTime) + ", edgeDelay: " + std::to_string(edgeDelay)  + ", setting ReqTime:" + std::to_string(reqTime));
             }
             printDebugStatement(m_debugMode, "Node id: " + std::to_string(node->getId()) + ", Final Required Time: " + std::to_string(reqTime));
             node->setRequiredTime(reqTime);
@@ -203,6 +276,76 @@ DelayGraph :: updateSlack(){
     }
 }
 
+void DelayGraph :: getPathList(){
+    PathType pathVar;
+    assert (m_sourceNodePtr != nullptr);
+    pathVar.path.push_back(m_sourceNodePtr);
+    pathVar.endNode = m_sourceNodePtr;
+    pathVar.delay = 0;
+    pathVar.slack = m_sourceNodePtr->getSlack();
+
+    std :: priority_queue <PathType, std :: vector<PathType>, PathSlackComparator> pq; 
+    pq.push(pathVar);
+
+    while(!pq.empty()){
+        PathType currentPath = pq.top();
+        pq.pop();
+        auto succNodePtr = currentPath.endNode;
+
+        for (auto node: circuit[currentPath.endNode]){
+
+            PathType localPath = currentPath;
+
+            int localPathEndNode = localPath.endNode->getId();
+            int currrentNodeId = node->getId();
+
+            
+            if (delay.find(std :: make_pair(localPathEndNode, currrentNodeId)) == delay.end()) {
+                std :: cout << "ERROR: CurrentPath endnode: " <<localPathEndNode << ", starting node: " <<
+                localPath.endNode->getId() << ", end node: " << currrentNodeId<< "\n";
+            }
+            
+            assert(delay.find(std :: make_pair(localPathEndNode, currrentNodeId)) != delay.end());
+            
+            
+            printDebugStatement(m_debugMode, "getPathList :: CurrentPath endnode: " + std::to_string(currrentNodeId) + ", delay lookup start node: "
+            + std::to_string(localPathEndNode) + ", delay lookup end node: " + std::to_string(currrentNodeId) + "\n");
+            
+            
+            localPath.delay += delay[std::make_pair(localPathEndNode, currrentNodeId)];
+            localPath.path.push_back(node);
+            localPath.slack = node->getSlack();
+            localPath.endNode = node;
+            
+
+            if (node->getType() == SINK){
+                m_finalPathList.push_back(localPath);
+            } else {
+                pq.push(localPath);
+            }
+        }
+    }
+}
+
+void DelayGraph :: printPathList(){
+    std::cout << "Printing Path List (decreasing order of delay)" << std::endl;
+    for (auto path : m_finalPathList){
+        std::cout << "Path: ";
+        for (auto node : path.path){
+            if (node == m_sourceNodePtr){
+                std :: cout << "SRC ";
+            } else if (node == m_sinkNodePtr){
+                std :: cout << "SNK";
+            } else {
+                std::cout << node->getId() << " ";
+            }
+        }
+        std::cout << std::endl;
+        std::cout << "Delay: " << path.delay << std::endl;
+        std :: cout << "--------------------------------" << std::endl;
+    }
+}
+
 void DelayGraph :: printTopologicalOrder(){
     std::cout << "Printing Topological Order" << std::endl;
     for(auto node : topologicalOrder){
@@ -212,12 +355,13 @@ void DelayGraph :: printTopologicalOrder(){
 }
 
 void DelayGraph :: run(){
-    createSimpleCircuit();
+    createSimpleCircuit_2();
     printIncomingEdges();
     performTopologicalSort();
     updateArrivalTime();
     updateRequiredTime();
     updateSlack();
+    getPathList();
 }
 
 void DelayGraph :: print(){
@@ -227,6 +371,7 @@ void DelayGraph :: print(){
     printPredecessor();
     printTopologicalOrder();
     printTimingInformation();
+    printPathList();
 }
 
 void DelayGraph :: printSuccessor(){

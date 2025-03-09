@@ -21,6 +21,7 @@ class DelayGraph{
     NodePtr m_sinkNodePtr;
     int m_cycleTime;
     bool m_debugMode;
+    PathList m_finalPathList;
 
     public:
         // Constructors
@@ -76,9 +77,12 @@ class DelayGraph{
         void printTimingInformation();
         //--------------------------------------------------------------------------------
         void run();
+        void getPathList();
+        void printPathList();
         //Create Circuit
         void createCircuit();
         void createSimpleCircuit();
+        void createSimpleCircuit_2();
 };
 
 #endif
