@@ -309,7 +309,7 @@ void DelayGraph :: getPathList(){
             
             
             printDebugStatement(m_debugMode, "getPathList :: CurrentPath endnode: " + std::to_string(currrentNodeId) + ", delay lookup start node: "
-            + std::to_string(localPathEndNode) + ", delay lookup end node: " + std::to_string(currrentNodeId) + "\n");
+            + std::to_string(localPathEndNode) + ", delay lookup end node: " + std::to_string(currrentNodeId));
             
             
             localPath.delay += delay[std::make_pair(localPathEndNode, currrentNodeId)];
