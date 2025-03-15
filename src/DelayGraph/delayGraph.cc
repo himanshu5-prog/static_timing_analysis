@@ -1,5 +1,8 @@
 #include "delayGraph.hh"
 
+DelayGraph :: ~DelayGraph(){
+}
+
 void
 DelayGraph :: createCircuit(){
     // Creating source node
@@ -13,10 +16,6 @@ DelayGraph :: createCircuit(){
     for(int i = 0; i < 10; i++){
         gatePtr[i] = new Node(i+1, GATE, 0, 0);
     }
-
-
-
-
 }
 
 void
@@ -103,6 +102,16 @@ DelayGraph :: createSimpleCircuit(){
 }
 
 void DelayGraph :: createSimpleCircuit_2(){
+
+    /*
+    
+        SRC ----------> 0-------2
+         |              |       |
+         |              |       |
+         V              V       V
+         1------------->3-------SINK
+    
+    */
     // Creating source node
     NodePtr source = new Node(100, SOURCE, 0, 0);
     incomingEdges[source] = 0;
@@ -115,6 +124,7 @@ void DelayGraph :: createSimpleCircuit_2(){
 
     NodePtr* gatePtr = new NodePtr[5];
 
+    // Create Gate nodes
     for (int i = 0; i < 4; i++){
         gatePtr[i] = new Node(i, GATE, 0, 0);
         incomingEdges[gatePtr[i]] = 0;
@@ -146,11 +156,14 @@ void DelayGraph :: createSimpleCircuit_2(){
     successor[ gatePtr[2]].push_back(sink);
     predecessor[sink].push_back(gatePtr[2]);
 
+    // Connecting gate 3 and sink node
     addNodeList(gatePtr[3], {sink});
     incomingEdges[sink] += 1;
     successor[gatePtr[3]].push_back(sink);
     predecessor[sink].push_back(gatePtr[3]);
 
+    // Creating edge delays between node
+    //setDelay (startingNodeId, endNodeId, delayValue)
     setDelay(100,0,3);
     setDelay(100,1,4);
     setDelay(0,2,5);
@@ -219,6 +232,7 @@ DelayGraph :: updateArrivalTime(){
 
     for (auto node : topologicalOrder){
         if (node->getType() == SOURCE){
+            // Arrival time is 0 at source
             node->setArrivalTime(0);
             printDebugStatement(m_debugMode, "currentNode: SOURCE Node Arrival Time: " + std::to_string(node->getArrivalTime()));
         } else {
@@ -226,6 +240,9 @@ DelayGraph :: updateArrivalTime(){
             int arrTime = INT_MIN;
             int edgeDelay;
             printDebugStatement(m_debugMode, "Current Node id: " + std::to_string(node->getId()));
+            /*
+                When node is not source type, then Arrival time is max of Arrival time of predecessor + delay from predecessor to current node
+            */
             for (auto pred: predecessor[node]){
                 edgeDelay = delay[std::make_pair(pred->getId(), node->getId())];
                 arrTime = std :: max(arrTime, pred->getArrivalTime() + edgeDelay);
@@ -247,6 +264,7 @@ DelayGraph :: updateRequiredTime(){
         std :: string nodeReqTimesStr = std::to_string(node->getRequiredTime());
 
         if (node->getType() == SINK){
+            // Required Arrival time at sink node is clock cycle
             node->setRequiredTime(m_cycleTime);
             printDebugStatement(m_debugMode, "currentNode: SINK Node id: " + nodeIdStr + ", Required Time: " + nodeReqTimesStr);
         } else {
@@ -254,6 +272,10 @@ DelayGraph :: updateRequiredTime(){
             int edgeDelay;
             int succReqTime;
             std::string succId;
+
+            /*
+                If the node is not sink, then required arrival time is minimum of arrival time of successor - delay from current node to successor
+            */
             printDebugStatement(m_debugMode, "Current Node id: " + std::to_string(node->getId()));
             for (auto succ: successor[node]){
                 edgeDelay = delay[std::make_pair(node->getId(), succ->getId())];
@@ -271,6 +293,8 @@ DelayGraph :: updateRequiredTime(){
 
 void
 DelayGraph :: updateSlack(){
+
+    // Slack = Required Arrival time - Arrival time
     for (const auto node: topologicalOrder){
         node->setSlack(node->getRequiredTime() - node->getArrivalTime()); // Slack = Required Time - Arrival Time
     }
@@ -287,6 +311,7 @@ void DelayGraph :: getPathList(){
     std :: priority_queue <PathType, std :: vector<PathType>, PathSlackComparator> pq; 
     pq.push(pathVar);
 
+    // This function calculates every possible path and store it in decreasing order of delay
     while(!pq.empty()){
         PathType currentPath = pq.top();
         pq.pop();
@@ -354,23 +379,51 @@ void DelayGraph :: printTopologicalOrder(){
     std::cout << std::endl;
 }
 
+// Run function
 void DelayGraph :: run(){
+
+    // Create the circuit in form of delay graph
     createSimpleCircuit_2();
     printIncomingEdges();
+
+    //Do topological sorting
     performTopologicalSort();
+
+    // Compute arrival time at each node
     updateArrivalTime();
+
+    // Compute required arrival time at each node
     updateRequiredTime();
+
+    // Compute slack for every node
     updateSlack();
+
+    // Get all possible path
     getPathList();
 }
 
+// Print methods
 void DelayGraph :: print(){
+
+    // Print the digital circuit as delay graph
     printCircuit();
+
+    // Print delay between all connected nodes
     printDelay();
+
+    // Print successor of each node
     printSuccessor();
+
+    // Print predecessor of each node
     printPredecessor();
+
+    // Print topological ordered node
     printTopologicalOrder();
+
+    // Print timing information of every node
     printTimingInformation();
+
+    // Print all possible path from source to sink in decreasing order of delay
     printPathList();
 }
 

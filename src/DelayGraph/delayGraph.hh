@@ -37,8 +37,7 @@ class DelayGraph{
             m_debugMode = false;
         }
 
-        ~DelayGraph(){
-        }
+        ~DelayGraph();
         //--------------------------------------------------------------------------------
 
         // Getters
