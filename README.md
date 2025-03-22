@@ -11,6 +11,14 @@ The logic circuit is represented using delay graph which is Directed-Acyclic-Gra
 2) Running the code
  > ./performSTA
 
+Sample Delay graph:
+
+[Delay Graph](doc/image/delay_graph.png)
+
+
+The above delay graph is used in the code. Refer to createCircuit fuction which connects the node and set delay between nodes in src/DelayGraph directory.
+
+
 Reference:
 
 https://www.coursera.org/learn/vlsi-cad-layout (Timing Analysis section) 
