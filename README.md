@@ -13,7 +13,7 @@ The logic circuit is represented using delay graph which is Directed-Acyclic-Gra
 
 Sample Delay graph:
 
-[Delay Graph](doc/image/delay_graph.png)
+![Delay Graph](doc/image/delay_graph.png)
 
 
 The above delay graph is used in the code. Refer to createCircuit fuction which connects the node and set delay between nodes in src/DelayGraph directory.
